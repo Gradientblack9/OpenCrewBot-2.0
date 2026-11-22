@@ -17,6 +17,7 @@ let child;
 let logs = "";
 let heldResponse;
 let writes = 0;
+let sawSourceContext = false;
 
 const fake = createServer(async (req, res) => {
   const parts = [];
@@ -26,6 +27,9 @@ const fake = createServer(async (req, res) => {
   if (model === "unavailable") { res.writeHead(503).end(); return; }
   const payload = JSON.parse(messages[1].content);
   const isPlan = Array.isArray(payload.roster);
+  if (payload.kind === "work" && payload.objective.startsWith("Review upstream room routing")) {
+    sawSourceContext = payload.handoffs.some(({ output }) => output?.includes("function mentionsIn") && output.includes("queue.push({ bot: next"));
+  }
   if (model === "test-slow" && !isPlan && !heldResponse) {
     heldResponse = res;
     return;
@@ -82,6 +86,8 @@ function start() {
 }
 async function ready() {
   return waitFor(async () => {
+    if (child.exitCode !== null) throw new Error(logs);
+    if (!logs.includes("Ready in")) return null;
     try { return await api("/api/bootstrap"); } catch (error) {
       if (child.exitCode !== null) throw error;
       return null;
@@ -251,6 +257,17 @@ try {
       assert.equal(result.output.mode, "LIVE");
       checked(`Live ${id} integration`, result.output.markdown.split("\n")[0]);
     }
+    const connected = await api("/api/bootstrap");
+    for (const agent of connected.bots.filter((bot) => engineering.memberIds.includes(bot.id))) {
+      await workforce({ ...agent.workforce, action: "agent-profile", id: agent.id, approval: "controlled", model: "", disabled: false, preapproved: ["github_read"] });
+    }
+    const { id } = await workforce({ ...base, roomId: engineering.id, mode: "live", planner: "rules",
+      instruction: "Review upstream room routing at https://github.com/Studio1-OSS/OpenCrewBot/blob/main/src/lib/server/rooms.ts and propose improvements.",
+    });
+    const sourceRun = await awaitStatus(id, ["completed", "failed"]);
+    assert.equal(sourceRun.run.status, "completed");
+    assert.ok(sawSourceContext, "The reviewer received defining statements and their later uses.");
+    checked("GitHub source file handoff", "A live TypeScript source read reached the review worker with both the definition and later call-site context.");
   }
   if (process.env.WORKFORCE_TEST_SCHEDULE === "1") {
     const due = await waitFor(() => api("/api/workforce"), ({ runs }) => runs.some((run) => run.scheduleId === flow.schedule.id && run.id !== manual.id), 68_000);

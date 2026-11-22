@@ -106,7 +106,7 @@ async function recordEvidence() {
     ["meetuniversity-market", "Market intelligence", "The agents retrieved first-party webpages. The report combines the local model draft, review, and links to the captured sources."],
     ["class-11-campaign", "Class 11 campaign", "The draft uses public audience references. Check the workstream for campaign concepts, a content calendar and sample copy."],
     ["meetuniversity-sales", "Sales funnel", "The original spreadsheet calculation includes a chart, per-channel totals, and a separate local-model interpretation."],
-    ["opencrewbot-review", "Development plan", "This run reads upstream GitHub source. The task and report offer evidence and proposed changes for human review."],
+    ["opencrewbot-review", "Development team", "This run retrieved an actual upstream source file from GitHub. The repository also includes a hand-checked development plan for this target."],
     ["competitor-monitor", "Automatic run", "The audit identifies the timer slot that created this digest."],
     ["memory-edit", "Editable memory", "After restarting, the next two runs read the persisted preference and its direct Markdown correction."],
     ["reject-external-write", "Rejected external write", "The audit records the rejection. It contains no tool-dispatch event."],
@@ -122,6 +122,10 @@ async function recordEvidence() {
     if (["competitor-monitor", "reject-external-write"].includes(project)) {
       await detail().locator("summary").filter({ hasText: "Audit log" }).click();
       await detail().getByText(project === "competitor-monitor" ? /Scheduled for / : /^approval rejected$/).first().scrollIntoViewIfNeeded();
+    } else if (project === "opencrewbot-review") {
+      const inspection = detail().locator("details").filter({ hasText: "Inspect the linked source file" }).first();
+      await inspection.locator("summary").click();
+      await inspection.getByText("LIVE", { exact: true }).first().scrollIntoViewIfNeeded();
     } else if (project === "meetuniversity-sales") {
       const calculation = detail().locator("details").filter({ hasText: "Calculate spreadsheet metrics" }).first();
       await calculation.locator("summary").click();

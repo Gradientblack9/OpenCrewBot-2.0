@@ -4,7 +4,7 @@ The production build passed on Windows using Node.js 24.14.1, pnpm 11.25.0 and N
 
 ## Production test suite
 
-Run `pnpm build` followed by `pnpm test:workforce`. All 18 checks passed with `WORKFORCE_TEST_PUBLIC=1` and `WORKFORCE_TEST_SCHEDULE=1`. The suite started a production server with isolated data, called the localhost API, stopped the process during a worker call, and restarted the same database. It writes its machine-readable results under `data/workforce-checks`.
+Run `pnpm build` followed by `pnpm test:workforce`. All 19 checks passed with `WORKFORCE_TEST_PUBLIC=1` and `WORKFORCE_TEST_SCHEDULE=1`. The suite started a production server with isolated data, called the localhost API, stopped the process during a worker call, and restarted the same database. It writes its machine-readable results under `data/workforce-checks`.
 
 | Check | Observed result |
 | --- | --- |
@@ -22,6 +22,7 @@ Run `pnpm build` followed by `pnpm test:workforce`. All 18 checks passed with `W
 | Process restart recovery | Killing the server during a worker response left the run durable. Restart requeued the interrupted task and the same run completed. |
 | Memory and replanning | Agent and shared preferences survived restart. Editing the preference Markdown on disk changed the next run, and the amended run linked to the previous one. |
 | GitHub | Read Studio1-OSS/OpenCrewBot public repository metadata from the GitHub REST API. |
+| GitHub source handoff | Retrieved `src/lib/server/rooms.ts` and checked that the worker saw both function definitions and later call sites. |
 | DeepWiki MCP | Retrieved public documentation structure for microsoft/TypeScript. |
 | Microsoft Learn MCP | Retrieved public Microsoft Learn results for the Azure Functions TypeScript developer guide. |
 | Public webpage | Retrieved and extracted MeetUniversity's About page without a search API key. |

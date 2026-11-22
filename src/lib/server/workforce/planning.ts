@@ -244,7 +244,7 @@ export async function performTask(run: WorkRun, task: WorkTask, bot: Bot, eviden
     evidence: evidence ? { mode: evidence.mode, markdown: evidence.markdown.slice(0, 9500) } : undefined,
     handoffs: dependencies.map((dep) => ({
       from: dep.botName, task: dep.title, status: dep.status, mode: dep.output?.mode,
-      output: dep.output?.markdown.slice(0, dep.kind === "review" ? 5500 : task.kind === "review" && dep.toolOutput ? 1000 : 2500),
+      output: dep.output?.markdown.slice(0, handoffLimit(task, dep)),
       sources: dep.toolOutput?.markdown.match(/https:\/\/[^\s)]+/g)?.slice(0, 10), error: dep.error, followUp: dep.output?.followUp,
     })),
   });
@@ -260,6 +260,12 @@ export async function performTask(run: WorkRun, task: WorkTask, bot: Bot, eviden
       instruction: followUp[2].trim(),
     } } : {}),
   };
+}
+
+function handoffLimit(task: WorkTask, dependency: WorkTask) {
+  if (dependency.kind === "review") return 5500;
+  if (dependency.tool?.id === "github_read" && dependency.tool.args.path) return 7600;
+  return task.kind === "review" && dependency.toolOutput ? 1000 : 2500;
 }
 
 const agentShape = z.object({

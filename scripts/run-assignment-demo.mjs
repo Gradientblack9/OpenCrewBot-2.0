@@ -7,13 +7,18 @@ import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const output = join(root, "data", "assignment-demo", randomUUID().slice(0, 8));
+const previous = process.env.WORKFORCE_DEMO_RESUME;
+const only = new Set(process.argv.slice(2));
+if (previous) {
+  assert.match(previous, /^[a-f0-9]{8}$/);
+  assert.ok(only.size, "Select the cases to rerun in the prior evidence directory.");
+}
+const output = join(root, "data", "assignment-demo", previous || randomUUID().slice(0, 8));
 const port = Number(process.env.WORKFORCE_DEMO_PORT || 3196);
 const origin = `http://127.0.0.1:${port}`;
 const model = process.env.WORKFORCE_DEMO_MODEL || "local:qwen3-1.7b";
 const localURL = process.env.WORKFORCE_LOCAL_URL || "http://127.0.0.1:11435/v1";
-const only = new Set(process.argv.slice(2));
-const results = [];
+const results = previous ? JSON.parse(readFileSync(join(output, "results.json"), "utf8")) : [];
 let server;
 
 assert.match(model, /^local:/);
@@ -22,9 +27,11 @@ mkdirSync(output, { recursive: true });
 console.log(`Evidence directory ${output}`);
 
 async function api(path, payload) {
-  const response = await fetch(`${origin}${path}`, payload ? {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-  } : undefined);
+  const response = await fetch(`${origin}${path}`, {
+    headers: { Connection: "close", ...(payload ? { "Content-Type": "application/json" } : {}) },
+    signal: AbortSignal.timeout(25_000),
+    ...(payload ? { method: "POST", body: JSON.stringify(payload) } : {}),
+  });
   const data = await response.json();
   assert.ok(response.ok, `${path} HTTP ${response.status} ${data.error || ""}`);
   return data;
@@ -97,7 +104,9 @@ async function scenario(label, run) {
     Object.assign(result, { passed: false, error: error.message });
     process.exitCode = 1;
   }
-  results.push(result);
+  const previousIndex = results.findIndex(({ scenario }) => scenario === label);
+  if (previousIndex >= 0) results[previousIndex] = result;
+  else results.push(result);
   persist();
   console.log(JSON.stringify(result));
 }
