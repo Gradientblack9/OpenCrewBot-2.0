@@ -36,6 +36,8 @@ _Ask, search, answer, remember. Scout searches the web with Tavily, answers with
 
 ## OpenCrewBot 2.0 Workforce
 
+[Assignment submission, demo video, and evidence](SUBMISSION.md)
+
 This version builds on [Studio1-OSS/OpenCrewBot](https://github.com/Studio1-OSS/OpenCrewBot) and keeps its individual chats, rooms and connection setup. The **Workforce** workspace adds a Chief of Staff, delegated task graphs, a review and report step, an approval centre, editable project memory and scheduled workflows.
 
 ### Run locally
