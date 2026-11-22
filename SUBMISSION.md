@@ -9,7 +9,7 @@ OpenCrewBot 2.0 extends the MIT-licensed [Studio1-OSS project](https://github.co
 | Deliverable | Link |
 | --- | --- |
 | Public GitHub fork and full source | [Gradientblack9/OpenCrewBot-2.0](https://github.com/Gradientblack9/OpenCrewBot-2.0) |
-| Screen-recorded demo, 8 minutes 27 seconds | [Download the demo video](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/download/v2.0.1/OpenCrewBot-2.0-assignment-demo.webm) · [Release and assets](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/tag/v2.0.1) |
+| Screen-recorded demo | [Watch on Google Drive](https://drive.google.com/file/d/1bPhSuJWvdu4vs-1zfHJlJY1jijlrF0IK/view?usp=sharing) · [Download the 8-minute, 27-second GitHub recording](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/download/v2.0.1/OpenCrewBot-2.0-assignment-demo.webm) · [Release and assets](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/tag/v2.0.1) |
 | Installation, usage, and troubleshooting | [README](README.md#opencrewbot-20-workforce) · [Local Qwen setup](README.md#local-agent-chat) |
 | Technical architecture, costs, and limitations | [Workforce architecture](docs/workforce-architecture.md) |
 | Changes from upstream | [Feature audit](docs/workforce-feature-audit.md) |
@@ -33,7 +33,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) after starting the app, then
 
 ## Demonstrations and verification
 
-The video opens with the seven live MeetUniversity cases and follows with a labelled simulated walkthrough of the controls. The cases cover competitor research, a 30-day Class 11 campaign, analysis of a fictional sales CSV, a GitHub source review, an automatic competitor report, memory after restart and correction, and rejection of a proposed GitHub issue before dispatch.
+The GitHub recording opens with the seven live MeetUniversity cases and follows with a labelled simulated walkthrough of the controls. The cases cover competitor research, a 30-day Class 11 campaign, analysis of a fictional sales CSV, a GitHub source review, an automatic competitor report, memory after restart and correction, and rejection of a proposed GitHub issue before dispatch.
 
 | Label | What it means |
 | --- | --- |
