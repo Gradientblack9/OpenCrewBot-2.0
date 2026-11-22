@@ -211,22 +211,23 @@ try {
   });
 
   await scenario("memory", async () => {
-    const first = "Use a numbered action checklist for reports.";
-    const correction = "Use a one-paragraph executive summary for reports.";
+    const first = "Use WILLOW-23 as the heading of every business report.";
+    const correction = "Use MAPLE-47 as the heading of every business report.";
     const file = await post({ action: "memory", scope: "preferences", id: "", markdown: first });
     await stop();
     await start();
-    assert.match((await read("?scope=preferences")).markdown, /numbered action checklist/i);
+    assert.match((await read("?scope=preferences")).markdown, /WILLOW-23/);
     const recall = async (label, expected) => {
-      const { id } = await launch("Business Operations", label, "Repeat only the stored report-format preference verbatim");
+      const { id } = await launch("Business Operations", label, "Look up the current user preference in memory and tell me the exact heading code for my business reports");
       const tasks = await finish(label, id);
       liveWorker(tasks);
       assert.match(tasks.find((task) => task.kind === "work").output.markdown, expected);
       return id;
     };
-    const restartId = await recall("memory-restart", /numbered action checklist/i);
+    const restartId = await recall("memory-title-recall", /WILLOW-23/i);
     writeFileSync(file.path, correction);
-    const editedId = await recall("memory-edit", /one.paragraph executive summary/i);
+    assert.match((await read("?scope=preferences")).markdown, /MAPLE-47/);
+    const editedId = await recall("memory-title-edit", /MAPLE-47/i);
     return { restartId, editedId };
   });
 

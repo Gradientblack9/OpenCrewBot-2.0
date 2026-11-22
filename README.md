@@ -8,7 +8,7 @@
 
 **An open-source alternative to Grok Bot, on open models. Each bot has its own model, tools, memory and cloud browser.**
 
-Built with [Mastra](https://mastra.ai) · [Run locally](#run-locally) · [Workforce architecture](docs/workforce-architecture.md) · [Demo and test evidence](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/tag/v2.0.0) · [Overview](#overview)
+Built with [Mastra](https://mastra.ai) · [Run locally](#run-locally) · [Workforce architecture](docs/workforce-architecture.md) · [Demo and test evidence](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/latest) · [Overview](#overview)
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![Mastra](https://img.shields.io/badge/harness-Mastra-6d28d9)

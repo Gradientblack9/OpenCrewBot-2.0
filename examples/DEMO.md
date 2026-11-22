@@ -8,7 +8,7 @@ To reproduce the seven cases with a local model, build the app, start your OpenA
 
 For an interactive run, use project `meetuniversity` throughout, select **Live** mode, and approve the proposed reads. Use **Rules plan the work** with first-party HTTPS URLs. A room operator can pre-approve specific read tools under Controlled Access. Configure Tavily when you want the agents to discover URLs through search.
 
-| Time | Demonstration | Room and instruction |
+| Rehearsal offset | Demonstration | Room and instruction |
 | --- | --- | --- |
 | 0:00–0:45 | Workspace and specialists | Open the existing rooms, then Workforce → Agents. Create “Cedar, a specialist in Class 11 audience research and campaign data analysis” and add it to Studio. |
 | 0:45–1:40 | Market intelligence | **Market Intelligence.** Research MeetUniversity's Study Abroad, Aspirations and School Partnerships. Compare overlapping alternatives by offering, buyer, public pricing and positioning. Give first-party URLs and strategic openings. Flag pricing you could not verify. Show independent tasks, review and consolidated table. |

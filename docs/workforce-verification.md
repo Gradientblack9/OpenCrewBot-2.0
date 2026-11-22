@@ -30,4 +30,18 @@ Run `pnpm build` followed by `pnpm test:workforce`. All 19 checks passed with `W
 
 The regression tests use a controlled model fixture for forced failures and interruption. GitHub, DeepWiki, Microsoft Learn and the public webpage test make actual read-only network requests. The suite used no hosted model credentials, Tavily account, Slack workspace or repository write token. The running workspace also has all eight direct-chat agents and its Workforce planner and workers configured for local Qwen3 1.7B.
 
-The release includes the [raw 18-check results](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/download/v2.0.0/workforce-regression-results.json) and a [6 minute 29 second captioned walkthrough](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/tag/v2.0.0) showing the seven assignment scenarios in simulated mode. It includes real SQLite and Markdown behavior, spreadsheet calculations, approvals and three public connection checks. See the [MeetUniversity guide](../examples/DEMO.md) for live reproduction and the [reviewer reference](../examples/MEETUNIVERSITY.md) for hand-checked comparison facts, campaign materials and sample CSV results.
+The release includes the [raw 19-check results](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/download/v2.0.1/workforce-regression-results.json), [live case traces](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/download/v2.0.1/meetuniversity-live-evidence.json) and the [captioned screen recording](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/tag/v2.0.1). The recording opens with the completed live cases, followed by a clearly labelled simulated walkthrough of the controls. See the [MeetUniversity guide](../examples/DEMO.md) for replay instructions.
+
+## Live MeetUniversity runs
+
+| Demonstration | Observed evidence |
+| --- | --- |
+| Market intelligence | Retrieved IDP, Yocket and Mindler pages. Local Qwen assembled a comparison that included published plan prices. |
+| Class 11 campaign | Retrieved UNICEF India and ASER sources. The draft contained all 30 calendar days, carousel copy and a parent email. |
+| Sales | Calculated the complete funnel and INR 1,080,000 in revenue from the fictional sample. The app rendered a chart and supplied local-model recommendations. |
+| Development team | Read an actual upstream TypeScript file from GitHub and generated a development draft. The small model made unsupported unused-symbol claims. The reviewer reference gives the hand-checked plan. |
+| Recurring routine | A one-minute timer created the pricing monitor run automatically. The report included the Yocket source receipt, review and peer verification. |
+| Memory | Qwen recalled WILLOW-23 after a process restart and MAPLE-47 after an on-disk Markdown correction. |
+| Human intervention | Rejected the exact GitHub issue proposal. The live run recorded zero tool dispatches. |
+
+The case traces verify execution, tool provenance and the assertions in the runner. The [reviewer reference](../examples/MEETUNIVERSITY.md) contains hand-checked prices, campaign materials, sample CSV results and development findings for comparing the generated drafts.

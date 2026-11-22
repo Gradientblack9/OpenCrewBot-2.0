@@ -75,7 +75,15 @@ const detail = () => page.getByLabel("Run detail", { exact: true });
 const selectRoom = (room) => page.locator("select").filter({ has: page.getByRole("option", { name: room, exact: true }) }).selectOption({ label: room });
 const section = (label) => page.locator("section").filter({ has: page.getByRole("heading", { name: label, exact: true }) }).last();
 async function openApp() {
-  await page.goto(url);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      break;
+    } catch (error) {
+      if (attempt === 2 || !/ERR_NETWORK_IO_SUSPENDED|ERR_CONNECTION_RESET/.test(String(error))) throw error;
+      await delay(1200);
+    }
+  }
   await button("Workforce").click();
   await page.getByRole("heading", { name: "Give your team a task" }).waitFor();
 }
@@ -108,7 +116,7 @@ async function recordEvidence() {
     ["meetuniversity-sales", "Sales funnel", "The original spreadsheet calculation includes a chart, per-channel totals, and a separate local-model interpretation."],
     ["opencrewbot-review", "Development team", "This run retrieved an actual upstream source file from GitHub. The repository also includes a hand-checked development plan for this target."],
     ["competitor-monitor", "Automatic run", "The audit identifies the timer slot that created this digest."],
-    ["memory-edit", "Editable memory", "After restarting, the next two runs read the persisted preference and its direct Markdown correction."],
+    ["memory-title-edit", "Editable memory", "The model recalled WILLOW-23 after restart. Editing the Markdown file changed the reported heading to MAPLE-47."],
     ["reject-external-write", "Rejected external write", "The audit records the rejection. It contains no tool-dispatch event."],
   ];
   await caption("Live assignment evidence", "These runs use a local Qwen model, public read-only sources, and isolated workspace data.", 9);
