@@ -46,7 +46,7 @@ async function waitFor(readValue, matches, timeout = 540_000) {
 
 async function start() {
   server = spawn(process.execPath, [join(root, "node_modules", "next", "dist", "bin", "next"), "start", "-H", "127.0.0.1", "-p", String(port)], {
-    cwd: root, windowsHide: true, stdio: ["ignore", "ignore", "inherit"],
+    cwd: root, windowsHide: true, stdio: ["ignore", "pipe", "inherit"],
     env: {
       ...process.env, OPENCREWBOT_DATA_DIR: join(output, "app"), WORKFORCE_LOCAL_URL: localURL,
       OPENCREWBOT_LOCAL_CHAT_MODEL: model.slice(6), OPENCREWBOT_CHAT_DEFAULT_MODEL: model,
@@ -54,8 +54,11 @@ async function start() {
       NEBIUS_API_KEY: "", OPENAI_API_KEY: "", TAVILY_API_KEY: "", WORKFORCE_GITHUB_TOKEN: "", WORKFORCE_SLACK_TOKEN: "",
     },
   });
+  let startup = "";
+  server.stdout.on("data", (chunk) => { startup = (startup + chunk).slice(-2000); });
   return waitFor(async () => {
     if (server.exitCode !== null) throw new Error(`Demo server exited with code ${server.exitCode}.`);
+    if (!startup.includes("Ready in")) return null;
     return api("/api/bootstrap").catch(() => null);
   }, Boolean, 20_000);
 }
@@ -148,29 +151,34 @@ try {
     const tasks = await finish("market", id);
     liveWorker(tasks);
     assert.equal(tasks.filter((task) => task.tool?.id === "web_extract" && task.toolOutput?.mode === "LIVE").length, 3);
+    const draft = tasks.find((task) => task.kind === "work" && task.output?.usage)?.output.markdown ?? "";
+    assert.match(draft, /59,?999|89,?999|1,?34,?999/, "The comparison should include a retrieved Yocket price.");
+    assert.match(draft, /2,?400|11,?400|25,?000/, "The comparison should include a retrieved Mindler price.");
     return { id, liveSources: 3 };
   });
 
   if (!only.size || only.has("campaign")) await setup(1250);
   await scenario("campaign", async () => {
-    const { id } = await launch("Studio", "class-11-campaign", "Develop MeetUniversity Aspirations' Class 11 campaign for Indian students and parents. Use https://www.unicef.org/india/government-partners-yuwaah and https://asercentre.org/aser-2023-beyond-basics/ for audience context. Give two strategies and two concepts. Include a Markdown calendar with 30 short rows, each with its own day number, channel, theme and CTA. End with short draft carousel and parent email. Cite both sources. Keep each calendar row under ten words.");
+    const { id } = await launch("Studio", "class-11-campaign", "Develop MeetUniversity Aspirations' Class 11 campaign for Indian students and parents. Use https://www.unicef.org/india/government-partners-yuwaah and https://asercentre.org/aser-2023-beyond-basics/ for audience context. Give two strategies and two concepts. Include a Markdown calendar with 30 short rows, each with its own day number, channel, theme and CTA. End with a draft carousel and parent email. Label proposed activities. Cite both sources. Keep each calendar row under ten words.");
     const tasks = await finish("campaign", id);
     liveWorker(tasks);
-    const campaign = tasks.find((task) => task.kind === "work" && task.output?.usage)?.output.markdown;
-    assert.ok(campaign?.match(/(?:^|\n)\s*\|?\s*(?:Day\s*)?30[\s.|:–-]/i), "The local draft must reach day 30.");
-    return { id, includesDay30: true };
+    const campaign = tasks.find((task) => task.kind === "work" && task.output?.usage)?.output.markdown ?? "";
+    const days = new Set([...campaign.matchAll(/^[ \t]*\|?[ \t]*(?:Day[ \t]*)?(\d{1,2})(?:[ \t]*\||[.):–-][ \t]+)/gim)].map(([, day]) => Number(day)));
+    assert.ok(Array.from({ length: 30 }, (_, index) => index + 1).every((day) => days.has(day)), "The local draft must contain all 30 calendar days.");
+    return { id, calendarDays: 30 };
   });
 
   await setup(400);
 
   await scenario("sales", async () => {
     const csv = { name: "meetuniversity-sales.csv", text: readFileSync(join(root, "examples", "meetuniversity-sales.csv"), "utf8") };
-    const { id } = await launch("Business Operations", "meetuniversity-sales", "Analyze the attached sales CSV and compare the conversion funnel by channel. Quote exact stage counts, sales and recorded revenue. Identify the biggest drop-off, channel differences and two specific experiments. Keep it under 300 words.", { csv });
+    const { id } = await launch("Business Operations", "meetuniversity-sales", "Analyze the attached sales CSV in under 300 words, including exact stage counts, channel conversions, revenue, the biggest drop-off and two specific experiments", { csv });
     const tasks = await finish("sales", id);
     liveWorker(tasks);
     const calculation = tasks.find((task) => task.tool?.id === "csv")?.toolOutput;
     assert.equal(calculation?.mode, "LOCAL");
     assert.match(calculation.markdown, /1,080,000/);
+    assert.deepEqual(calculation.chart?.map(({ value }) => value), [700, 274, 155, 74]);
     return { id, mode: calculation.mode };
   });
 
@@ -201,7 +209,7 @@ try {
     await start();
     assert.match((await read("?scope=preferences")).markdown, /numbered action checklist/i);
     const recall = async (label, expected) => {
-      const { id } = await launch("Business Operations", label, "Read the stored report-format preference and repeat the preference sentence verbatim. Output just that sentence.");
+      const { id } = await launch("Business Operations", label, "Repeat only the stored report-format preference verbatim");
       const tasks = await finish(label, id);
       liveWorker(tasks);
       assert.match(tasks.find((task) => task.kind === "work").output.markdown, expected);

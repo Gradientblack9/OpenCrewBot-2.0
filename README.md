@@ -8,11 +8,11 @@
 
 **An open-source alternative to Grok Bot, on open models. Each bot has its own model, tools, memory and cloud browser.**
 
-Built with [Mastra](https://mastra.ai) and [Nebius Token Factory](https://tokenfactory.nebius.com) · [Get started](#get-started) · [Overview](#overview) · [Architecture](#architecture) · [Features](#features) · [Data and privacy](#data-and-privacy)
+Built with [Mastra](https://mastra.ai) · [Run locally](#run-locally) · [Workforce architecture](docs/workforce-architecture.md) · [Demo and test evidence](https://github.com/Gradientblack9/OpenCrewBot-2.0/releases/tag/v2.0.0) · [Overview](#overview)
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![Mastra](https://img.shields.io/badge/harness-Mastra-6d28d9)
-![Nebius Token Factory](https://img.shields.io/badge/models-Nebius%20Token%20Factory-e0ff4f?labelColor=0b0b0b)
+![Local and hosted models](https://img.shields.io/badge/models-local%20and%20hosted-e0ff4f?labelColor=0b0b0b)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Built by Studio1 team](https://img.shields.io/badge/built%20by-Studio1%20team-ff6b1a)](https://studio1hq.com)
 

@@ -23,6 +23,8 @@ For an interactive run, use project `meetuniversity` throughout, select **Live**
 
 For a captioned browser recording of the offline walkthrough, build the app and run `node scripts/record-workforce.mjs`. Use a local Playwright installation with Chromium and its video encoder installed. If Playwright is installed outside this checkout, set `WORKFORCE_PLAYWRIGHT_PACKAGE` to its absolute `index.mjs` path. Set `WORKFORCE_RECORD_PUBLIC=1` to include three public read-only connection tests. The recording script uses isolated app data and writes the WebM path to the terminal.
 
+After all seven live cases finish, set `WORKFORCE_RECORD_EVIDENCE` to that runner's evidence directory and run `node scripts/record-workforce.mjs` again. This opens the stored runs, source-backed reports and audit log in the production interface.
+
 ## Unseen problem rehearsal
 
 Create a room named **Field Service** with Atlas and a new budget analyst. Submit one instruction asking the team to analyze a service pipeline CSV and draft a management summary. While the plan runs, revise the instruction to segment by region. Check the linked prior run and updated report. Open the Markdown memory path during the run, edit the expected style and start a subsequent run to confirm the correction.

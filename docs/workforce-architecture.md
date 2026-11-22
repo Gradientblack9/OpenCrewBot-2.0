@@ -62,7 +62,7 @@ The fork retains the upstream MIT license and Studio1HQ attribution. Public HTML
 ## Known boundaries
 
 - Local single-process execution. Shared hosting requires authentication, tenant isolation, secret management and a distributed job lease.
-- Live planning generates a bounded graph. Review can add one peer follow-up per run. Amend the instruction when a run needs human clarification.
+- Each room run has up to eight planned tasks, a review, at most one peer follow-up, and a report. Retries and fallbacks also have attempt limits. The token cap applies per model response. A configurable aggregate per-room token ceiling is an unfinished area. Amend the instruction when a run needs human clarification.
 - Keyless research reads static text from supplied public URLs. JavaScript-only content, PDFs and sites that block programmatic readers may require a different source. General web discovery uses the optional Tavily integration.
 - File analysis accepts UTF-8 CSV exports. Presentation Creation produces a Markdown storyboard. The extension does not produce PowerPoint or ingest native Excel workbooks.
 - Recurrence uses a fixed interval. A run can wait on approvals, including scheduled reads in Ask First mode.

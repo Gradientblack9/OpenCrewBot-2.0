@@ -23,12 +23,16 @@ async function start() {
   });
   server.stdout.on("data", (chunk) => { logs += chunk; });
   server.stderr.on("data", (chunk) => { logs += chunk; });
+  let ready = false;
+  server.stdout.on("data", () => { ready = logs.includes("Ready in"); });
   for (let i = 0; i < 100; i++) {
     if (server.exitCode !== null) throw new Error(logs);
-    try {
-      const response = await fetch(`${url}/api/bootstrap`);
-      if (response.ok) return;
-    } catch { /* The server may still be starting. */ }
+    if (ready) {
+      try {
+        const response = await fetch(`${url}/api/bootstrap`);
+        if (response.ok) return;
+      } catch { /* The server may still be starting. */ }
+    }
     await delay(200);
   }
   throw new Error("The local server did not start.");
