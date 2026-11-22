@@ -39,7 +39,7 @@ function ModelDialog({ value, onPick, onClose }: { value: string; onPick: (id: s
     const q = query.trim().toLowerCase();
     return state.models
       .filter((m) => (!toolsOnly || m.tools) && (!q || `${m.id} ${m.label} ${m.provider}`.toLowerCase().includes(q)))
-      .sort((a, b) => a.provider.localeCompare(b.provider) || a.label.localeCompare(b.label));
+      .sort((a, b) => Number(b.id.startsWith("local:")) - Number(a.id.startsWith("local:")) || a.provider.localeCompare(b.provider) || a.label.localeCompare(b.label));
   }, [state.models, query, toolsOnly]);
 
   // Keep the keyboard-highlighted row in view.
@@ -92,7 +92,7 @@ function ModelDialog({ value, onPick, onClose }: { value: string; onPick: (id: s
             type="button"
             onClick={refresh}
             disabled={refreshing}
-            title="Refresh from Nebius Token Factory"
+            title="Refresh model list"
             aria-label="Refresh model list"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-raised text-mute ring-1 ring-line hover:text-ink disabled:opacity-50"
           >
@@ -175,8 +175,8 @@ function ModelDialog({ value, onPick, onClose }: { value: string; onPick: (id: s
       <p className="mt-4 flex items-start gap-1.5 text-[12px] leading-snug text-faint">
         <Sparkles size={13} className="mt-px shrink-0" />
         <span>
-          {live ? `Live from Nebius Token Factory. Prices are $ in / out per 1M tokens. ` : "Built-in list. Add NEBIUS_API_KEY for the live catalog. "}
-          Auto routing, where Jev picks a model per message, is coming soon.
+          {live ? "Hosted prices are in USD per million tokens. " : "Add NEBIUS_API_KEY to load the hosted catalog. "}
+          Local models run on your computer.
         </span>
       </p>
     </Drawer>

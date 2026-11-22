@@ -50,8 +50,8 @@
   --color-danger-soft: var(--danger-soft);
   --color-code: var(--code);
   --shadow-pop: var(--shadow);
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", monospace;
 }
 
 html,

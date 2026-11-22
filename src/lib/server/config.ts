@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, renameSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AppStatus } from "@/lib/shared/types";
+import { defaultChatModel } from "./models";
 
 // The data folder is chosen at runtime, so keep the bundler from tracing it.
 export const DATA_DIR = resolve(/*turbopackIgnore: true*/ process.env.OPENCREWBOT_DATA_DIR || "./data");
@@ -26,12 +27,13 @@ export const keys = {
   composio: () => Boolean(process.env.COMPOSIO_API_KEY),
 };
 
-/** Without a Nebius key, bots run on a scripted local model so the UI still works. */
-export const isMock = () => !keys.nebius();
+/** Hosted chat falls back to scripted replies when no Nebius key is set. */
+export const isMock = (model?: string) => !model?.startsWith("local:") && !keys.nebius();
 
 export function appStatus(): AppStatus {
   return {
     mock: isMock(),
+    defaultChatModel: defaultChatModel(),
     keys: { nebius: keys.nebius(), tavily: keys.tavily(), jev: keys.jev(), browserbase: keys.browserbase(), composio: keys.composio() },
     dataDir: DATA_DIR,
   };

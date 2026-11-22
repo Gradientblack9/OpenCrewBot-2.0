@@ -1,6 +1,8 @@
 // Types shared by the server and the browser. Everything here is plain JSON.
 
-export type ApprovalMode = "ask" | "full";
+import type { WorkforceProfile } from "./workforce";
+
+export type ApprovalMode = "ask" | "controlled" | "full";
 
 export interface BotTools {
   /** Tavily search, extract and crawl. */
@@ -30,6 +32,7 @@ export interface Bot {
   /** Connection ids this bot may use: `composio:<toolkit>` or `mcp:<serverId>`. */
   connections: string[];
   approval: ApprovalMode;
+  workforce?: WorkforceProfile;
   pinned: boolean;
   createdAt: string;
 }
@@ -126,6 +129,7 @@ export interface ModelOption {
 
 export interface AppStatus {
   mock: boolean;
+  defaultChatModel?: string;
   keys: { nebius: boolean; tavily: boolean; jev: boolean; browserbase: boolean; composio: boolean };
   dataDir: string;
 }
@@ -138,6 +142,7 @@ export type ServerEvent =
   | { type: "bots-changed" }
   | { type: "rooms-changed" }
   | { type: "memory-changed"; botId: string }
+  | { type: "workforce-changed" }
   /** A bot's Browserbase live view opened (url) or closed (null). */
   | { type: "browser-session"; botId: string; liveUrl: string | null }
   | { type: "connections-changed" };

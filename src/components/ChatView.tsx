@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { ArrowLeft, ArrowUp, AtSign, Eraser, MonitorPlay, MoreHorizontal, NotebookPen, PanelLeft, PanelRight, Plus, Square } from "lucide-react";
+import { Network, ArrowLeft, ArrowUp, AtSign, Eraser, MonitorPlay, MoreHorizontal, NotebookPen, PanelLeft, PanelRight, Plus, Square } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/client/api";
 import type { Bot, ChatMessage, Room } from "@/lib/shared/types";
@@ -24,7 +24,7 @@ function useClear(conversationId: string) {
 }
 
 function TopBar({ bot, room, members, running }: { bot?: Bot; room?: Room; members: Bot[]; running: string[] }) {
-  const { state, open, inspector, setInspector, sidebarOpen, setSidebarOpen } = useApp();
+  const { state, open, inspector, setInspector, sidebarOpen, setSidebarOpen, setPanel } = useApp();
   const [menu, setMenu] = useState(false);
   const conversationId = bot ? `dm:${bot.id}` : `room:${room!.id}`;
   const clear = useClear(conversationId);
@@ -59,6 +59,7 @@ function TopBar({ bot, room, members, running }: { bot?: Bot; room?: Room; membe
       </div>
 
       <div className="pointer-events-auto flex items-center gap-1">
+        {room && <IconButton label="Start a Workforce run in this room" onClick={() => setPanel({ kind: "workforce", roomId: room.id })}><Network size={18} /></IconButton>}
         {browserBotId && (
           <button
             onClick={() => {

@@ -16,7 +16,7 @@ Built with [Mastra](https://mastra.ai) and [Nebius Token Factory](https://tokenf
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Built by Studio1 team](https://img.shields.io/badge/built%20by-Studio1%20team-ff6b1a)](https://studio1hq.com)
 
-Run OpenCrewBot on your own machine. Bring a Nebius Token Factory key for the models, and optionally Tavily, Browserbase and Jev keys for search, browsing and room routing. With no keys at all, it runs in mock mode so you can try the whole interface first.
+Run OpenCrewBot on your own machine. Use a local model without an API key, try the simulated workflow, or configure a hosted provider. Search, cloud browsing and external writes have separate integration settings.
 
 </div>
 
@@ -33,6 +33,51 @@ Run OpenCrewBot on your own machine. Bring a Nebius Token Factory key for the mo
 </div>
 
 _Ask, search, answer, remember. Scout searches the web with Tavily, answers with its sources, and saves a decision to its own `MEMORY.md`. Staged example content; the interface is real._
+
+## OpenCrewBot 2.0 Workforce
+
+This version builds on [Studio1-OSS/OpenCrewBot](https://github.com/Studio1-OSS/OpenCrewBot) and keeps its individual chats, rooms and connection setup. The **Workforce** workspace adds a Chief of Staff, delegated task graphs, a review and report step, an approval centre, editable project memory and scheduled workflows.
+
+### Run locally
+
+Use Node.js 22.13 or newer and pnpm. Open a terminal in this checkout.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000), then select **Workforce** in the sidebar. The first boot seeds eight agents and four rooms. Select a room, enter an instruction, and start a **Simulated** run to try it without credentials. For actual spreadsheet calculations, select Business Operations and attach [the sample CSV](examples/meetuniversity-sales.csv).
+
+### Local production build
+
+```sh
+pnpm build
+pnpm start
+```
+
+For live runs, copy `.env.example` to `.env`, set the relevant credentials, and configure **Workforce → Models**. Use a provider-qualified ID such as `local:qwen3`. When using Ollama, start it separately and install the chosen model first. The workspace has separate planner, default worker and fallback settings. Use **Workforce → Agents** for per-agent routing and scoped tool permissions.
+
+### Local agent chat
+
+To offer a model for direct chat, set `OPENCREWBOT_LOCAL_CHAT_MODEL` to the model ID reported by your local server and set `WORKFORCE_LOCAL_URL` to its loopback OpenAI-compatible URL. Restart OpenCrewBot, open an agent's details, and select the **Local** model. The same agent can then use that model in rooms.
+
+Set `OPENCREWBOT_CHAT_DEFAULT_MODEL=local:qwen3-1.7b` to select it by default for seeded and newly created agents. Set `WORKFORCE_PLAN_MODEL` and `WORKFORCE_MODEL` to the same ID, or open **Workforce → Models** to configure an existing workspace. Set the model for existing direct-chat agents in each agent's Details.
+
+On Windows, [start-local-model.ps1](scripts/start-local-model.ps1) starts a workspace copy of llama.cpp with Qwen3 1.7B. Extract the [Windows x64 CPU release](https://github.com/ggml-org/llama.cpp/releases) under `data/local-model/llama` and save Qwen's [Q8_0 GGUF weights](https://huggingface.co/Qwen/Qwen3-1.7B-GGUF) as `data/local-model/qwen3-1.7b-q8_0.gguf`. The script serves `qwen3-1.7b` at `http://127.0.0.1:11435/v1`. Run it from PowerShell whenever the model server needs restarting.
+
+| Surface | Evidence mode |
+| --- | --- |
+| Offline planning, draft text and external tool simulation | **SIMULATED**. Works without API keys or network after installation. |
+| CSV parsing, calculations, charts, schedules, SQLite state and Markdown memory | Actual local execution. Calculated outputs carry **LOCAL**. |
+| Hosted or local model requests | **LIVE** successful provider responses. Requires configured endpoint and model. |
+| GitHub public read, DeepWiki, Microsoft Learn | Live integrations. **Test live connection** confirms a real read. |
+| Public pages supplied in a brief | **LIVE** HTTPS text retrieval without a key. Choose **Rules plan the work** to delegate explicit URLs and let the configured model draft from the receipts. |
+| Tavily search, Slack posting, GitHub issue creation | Live with valid credentials and scope. External writes require approval. |
+
+Build the app, then run `pnpm test:workforce` for the isolated regression suite. Set `WORKFORCE_TEST_PUBLIC=1` for public read-only integrations and `WORKFORCE_TEST_SCHEDULE=1` for an automatic timer check. With a local model serving, run `node scripts/run-assignment-demo.mjs` for the seven MeetUniversity cases. See the [architecture and costs](docs/workforce-architecture.md), [upstream feature audit](docs/workforce-feature-audit.md), [test evidence](docs/workforce-verification.md), and [demonstration guide](examples/DEMO.md).
+
+If a port is busy, use `pnpm dev --port 3100`. On Windows, run from a checkout where Turbopack can create junctions. If a live run fails, check **Models**, inspect its audit log, and retry from **Runs** after fixing the connection. For a dispatched write without a receipt, verify the destination before submitting a new request.
 
 ## Overview
 
@@ -137,7 +182,7 @@ cp .env.example .env
 pnpm dev
 ```
 
-Open **http://localhost:3000**. On first run OpenCrewBot creates three bots (Scout for research, Quill for writing, Atlas for planning) and a room called Studio.
+Open **http://localhost:3000**. On first run OpenCrewBot creates eight agents and four rooms, including the original Scout, Quill, Atlas, and Studio.
 
 Add your keys to `.env`, then restart `pnpm dev`. Every key is optional:
 

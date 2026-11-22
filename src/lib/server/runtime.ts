@@ -12,7 +12,7 @@ import type { Bot, ChatMessage, ConversationId, Part, RouteNote } from "@/lib/sh
 import { MASTRA_DB_URL, OWNER_ID, isMock } from "./config";
 import { conversationGeneration, getBot, saveMessage } from "./db";
 import { publish } from "./bus";
-import { costUsd, findModel } from "./models";
+import { costUsd, findModel, localChatConfig } from "./models";
 import { createMockModel } from "./mock-model";
 import { announceLiveView, createSession, releaseSession } from "./browserbase";
 import { buildConnectorTools, connectionsVersion } from "./connectors";
@@ -72,7 +72,8 @@ async function signatureOf(bot: Bot): Promise<string> {
     approval: bot.approval,
     connections: bot.connections,
     connectionsVersion: bot.connections.length ? await connectionsVersion() : 0,
-    mock: isMock(),
+    mock: isMock(bot.model),
+    local: bot.model.startsWith("local:"),
   });
 }
 
@@ -81,7 +82,7 @@ async function signatureOf(bot: Bot): Promise<string> {
 async function createBrowser(bot: Bot): Promise<MastraBrowser | undefined> {
   if (!bot.tools.browser) return undefined;
   const { AgentBrowser } = await import("@mastra/agent-browser");
-  const model = isMock() ? undefined : await findModel(bot.model);
+  const model = isMock(bot.model) ? undefined : await findModel(bot.model);
   return new AgentBrowser({
     cdpUrl: () => createSession(bot.id),
     scope: "shared",
@@ -102,7 +103,10 @@ async function buildRuntime(bot: Bot): Promise<BotRuntime> {
     id: `bot-${bot.id}`,
     name: bot.name,
     instructions: () => systemPrompt(holder.bot, capabilities, builtIn.instructions),
-    model: isMock() ? createMockModel(bot.name) : () => `nebius/${holder.bot.model}`,
+    model: isMock(bot.model) ? createMockModel(bot.name) : () => {
+      const model = holder.bot.model;
+      return model.startsWith("local:") ? localChatConfig(model) : `nebius/${model}`;
+    },
     tools: { ...connectors.tools, ...builtIn.tools },
     memory,
   });
@@ -217,7 +221,7 @@ class TurnFolder {
       createdAt: new Date().toISOString(),
       status: "streaming",
       parts: [],
-      model: isMock() ? "mock" : bot.model,
+      model: isMock(bot.model) ? "mock" : bot.model,
       route,
     };
   }

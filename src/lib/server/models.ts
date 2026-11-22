@@ -2,6 +2,8 @@
 // Mastra's model router uses) keeps the picker useful before a key is added;
 // with NEBIUS_API_KEY set, the live Token Factory list decides what's available.
 import type { ModelOption } from "@/lib/shared/types";
+import type { OpenAICompatibleConfig } from "@mastra/core/llm";
+import { InputError } from "./errors";
 
 export const DEFAULT_MODEL = "MiniMaxAI/MiniMax-M3";
 
@@ -38,6 +40,40 @@ function fromRow([id, context, tools, reasoning, vision, inPerM, outPerM]: Row, 
 }
 
 const staticOptions = STATIC.map((r) => fromRow(r));
+
+function localChatOption(): ModelOption | undefined {
+  const id = process.env.OPENCREWBOT_LOCAL_CHAT_MODEL?.trim();
+  if (!id || !/^[a-zA-Z0-9_./:@-]{1,140}$/.test(id)) return;
+  const context = Number(process.env.OPENCREWBOT_LOCAL_CHAT_CONTEXT || 8192);
+  return {
+    id: `local:${id}`, label: label(id), provider: "Local",
+    context: Number.isInteger(context) && context > 0 ? context : 8192,
+    tools: true, reasoning: false, vision: false, inputPerM: 0, outputPerM: 0, live: false,
+  };
+}
+
+export function defaultChatModel(): string {
+  const local = localChatOption();
+  return local && local.id === process.env.OPENCREWBOT_CHAT_DEFAULT_MODEL?.trim() ? local.id : DEFAULT_MODEL;
+}
+
+export function localChatConfig(id: string): OpenAICompatibleConfig {
+  if (id !== localChatOption()?.id) {
+    throw new InputError("Set OPENCREWBOT_LOCAL_CHAT_MODEL to this model and restart OpenCrewBot.");
+  }
+  const url = new URL(process.env.WORKFORCE_LOCAL_URL || "http://127.0.0.1:11434/v1");
+  if (!["http:", "https:"].includes(url.protocol) || !["127.0.0.1", "[::1]", "localhost"].includes(url.hostname)
+    || url.username || url.password || url.search || url.hash) {
+    throw new InputError("Local chat needs a loopback WORKFORCE_LOCAL_URL without credentials or query parameters.");
+  }
+  return {
+    providerId: "opencrew-local",
+    modelId: id.slice("local:".length),
+    url: url.href.replace(/\/+$/, ""),
+    api: "chat",
+    apiKey: process.env.WORKFORCE_LOCAL_KEY || undefined,
+  };
+}
 
 interface LiveModel {
   id: string;
@@ -96,14 +132,19 @@ async function fetchLive(): Promise<ModelOption[] | null> {
 /** The catalog, live from Token Factory when a key is set. `fresh` skips the 10-minute cache. */
 export async function listModels(fresh = false): Promise<ModelOption[]> {
   const cached = g.__opencrewbotModels;
-  if (!fresh && cached && Date.now() - cached.at < LIVE_TTL_MS) return cached.options;
+  const local = localChatOption();
+  if (!fresh && cached && Date.now() - cached.at < LIVE_TTL_MS) return local ? [local, ...cached.options] : cached.options;
   const live = await fetchLive();
   const options = (live ?? staticOptions).slice().sort((a, b) => Number(b.tools) - Number(a.tools) || a.id.localeCompare(b.id));
   if (live) g.__opencrewbotModels = { at: Date.now(), options };
-  return options;
+  return local ? [local, ...options] : options;
 }
 
 export async function findModel(id: string): Promise<ModelOption | undefined> {
+  if (id.startsWith("local:")) {
+    const option = localChatOption();
+    return option?.id === id ? option : undefined;
+  }
   return (await listModels()).find((m) => m.id === id) ?? staticOptions.find((m) => m.id === id);
 }
 

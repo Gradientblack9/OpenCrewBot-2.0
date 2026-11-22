@@ -1,13 +1,14 @@
 {
   "name": "opencrewbot",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "license": "MIT",
   "scripts": {
     "dev": "next dev -H 127.0.0.1",
     "build": "next build",
     "start": "next start -H 127.0.0.1",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:workforce": "node scripts/check-workforce.mjs"
   },
   "dependencies": {
     "@composio/core": "^0.23.0",
@@ -21,9 +22,10 @@
     "@mastra/quickjs": "0.1.3",
     "@mastra/tavily": "1.1.2",
     "@tavily/core": "^0.7.14",
+    "cheerio": "1.2.0",
     "clsx": "^2.1.1",
     "lucide-react": "^1.55.0",
-    "next": "16.4.0",
+    "next": "16.4.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
@@ -37,7 +39,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

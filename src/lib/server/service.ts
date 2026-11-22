@@ -7,11 +7,12 @@ import { DATA_DIR } from "./config";
 import { InputError } from "./errors";
 import * as store from "./db";
 import { publish } from "./bus";
-import { DEFAULT_MODEL } from "./models";
+import { defaultChatModel } from "./models";
 import { deleteWorkspace, writeMemory } from "./memory-files";
 import { forgetConversation, resetBot, runTurn, runningBots, stopConversation } from "./runtime";
 import { messagePreview } from "@/lib/shared/preview";
 import { roomConversationId, runRoom } from "./rooms";
+import { seedWorkforce } from "./workforce/seed";
 
 export { InputError };
 
@@ -23,6 +24,7 @@ export function boot(): Promise<void> {
   g.__opencrewbotBoot ??= (async () => {
     await sweepInterrupted();
     await seed();
+    await seedWorkforce();
   })();
   return g.__opencrewbotBoot;
 }
@@ -54,7 +56,7 @@ async function seed() {
       "Research before answering anything time-sensitive. Search, read the best two or three sources, then answer with the URLs you used. Say plainly when sources disagree or you couldn't verify something.",
     emoji: "🔭",
     color: "#2f7df6",
-    model: DEFAULT_MODEL,
+    model: defaultChatModel(),
     tools: { ...tools, codeMode: true },
     approval: "ask",
     pinned: true,
@@ -67,7 +69,7 @@ async function seed() {
       "Write in plain, specific language. Match the person's voice once you know it, and keep their style preferences in memory. Offer one tight draft, not three options.",
     emoji: "✒️",
     color: "#e0663d",
-    model: DEFAULT_MODEL,
+    model: defaultChatModel(),
     tools: { ...tools, webSearch: false },
     approval: "ask",
     pinned: false,
@@ -80,7 +82,7 @@ async function seed() {
       "Turn vague goals into a short, ordered plan with owners. Keep decisions and open questions in memory. In rooms, hand research to @scout and drafting to @quill.",
     emoji: "🧭",
     color: "#1f9d6b",
-    model: DEFAULT_MODEL,
+    model: defaultChatModel(),
     tools,
     approval: "ask",
     pinned: false,
@@ -112,6 +114,7 @@ async function uniqueHandle(wanted: string, exceptId?: string): Promise<string> 
 }
 
 function validateBot(input: Partial<BotInput>) {
+  if (input.approval !== undefined && !["ask", "controlled", "full"].includes(input.approval)) throw new InputError("Invalid approval mode.");
   if (input.name !== undefined && !input.name.trim()) throw new InputError("A bot needs a name.");
   if (input.name && input.name.length > 40) throw new InputError("Keep the name under 40 characters.");
   if (input.instructions && input.instructions.length > 8000) throw new InputError("Instructions are limited to 8,000 characters.");
@@ -121,6 +124,7 @@ export async function createBot(input: BotInput): Promise<Bot> {
   validateBot(input);
   const bot: Bot = {
     ...input,
+    model: input.model || defaultChatModel(),
     id: randomUUID().slice(0, 8),
     name: input.name.trim(),
     connections: input.connections ?? [],

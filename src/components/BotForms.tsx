@@ -53,7 +53,8 @@ export function ColorPicker({ value, onChange }: { value: string; onChange: (c: 
 /** Create or edit a bot. In edit mode the save bar appears only once something changes. */
 export function BotForm({ bot, onDone }: { bot?: Bot; onDone?: (bot: Bot) => void }) {
   const { state, open, toast } = useApp();
-  const defaultModel = state.models.find((m) => m.id === "MiniMaxAI/MiniMax-M3")?.id ?? state.models[0]?.id ?? "MiniMaxAI/MiniMax-M3";
+  const preferredModel = state.status?.defaultChatModel ?? "MiniMaxAI/MiniMax-M3";
+  const defaultModel = state.models.find((m) => m.id === preferredModel)?.id ?? state.models[0]?.id ?? preferredModel;
   const [initial, setInitial] = useState<BotInput>(() => (bot ? { ...bot } : blankBot(defaultModel)));
   const [form, setForm] = useState<BotInput>(initial);
   const [saving, setSaving] = useState(false);
@@ -152,7 +153,7 @@ export function BotForm({ bot, onDone }: { bot?: Bot; onDone?: (bot: Bot) => voi
           <span className="mb-1.5 block text-[12.5px] font-medium text-mute">Model</span>
           <ModelPicker value={form.model} onChange={(id) => set("model", id)} />
           <span className="mt-1.5 block text-[12px] leading-snug text-faint">
-            {state.status?.mock ? "Mock mode: replies come from a scripted model until NEBIUS_API_KEY is set." : "Open-source models on Nebius Token Factory."}
+            {form.model.startsWith("local:") ? "Runs on this computer." : state.status?.mock ? "Mock mode for this model. Choose a local model or configure a Nebius key for live replies." : "Hosted on Nebius Token Factory."}
           </span>
         </div>
 
@@ -188,7 +189,8 @@ export function BotForm({ bot, onDone }: { bot?: Bot; onDone?: (bot: Bot) => voi
             onChange={(v) => set("approval", v)}
             options={[
               { value: "ask", label: "Ask first", hint: "Browser actions wait for your OK." },
-              { value: "full", label: "Full access", hint: "Acts without asking." },
+              { value: "controlled", label: "Controlled", hint: "Uses pre-approved Workforce reads." },
+              { value: "full", label: "Full access", hint: "Uses permitted Workforce reads without asking." },
             ]}
           />
         </Field>

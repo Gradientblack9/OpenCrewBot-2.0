@@ -181,7 +181,9 @@ function BotDetails({ bot }: { bot: Bot }) {
       <section>
         <h3 className="mb-1.5 px-1 text-[12.5px] font-medium text-faint">Default model</h3>
         <ModelPicker value={bot.model} onChange={switchModel} />
-        {state.status?.mock && <p className="mt-1.5 px-1 text-[12px] text-faint">Mock mode: replies use a scripted model until NEBIUS_API_KEY is set.</p>}
+        {bot.model.startsWith("local:") ? (
+          <p className="mt-1.5 px-1 text-[12px] text-ok">Replies run on this computer.</p>
+        ) : state.status?.mock && <p className="mt-1.5 px-1 text-[12px] text-faint">Mock mode. Choose a local model or configure a Nebius key for live replies.</p>}
       </section>
       <Card title="Tools">
         {tools.length ? (

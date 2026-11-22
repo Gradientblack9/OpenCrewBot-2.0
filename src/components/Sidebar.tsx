@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { MoreHorizontal, PanelLeft, Pin, Plug, Plus, Search, Settings, X } from "lucide-react";
+import { Network, MoreHorizontal, PanelLeft, Pin, Plug, Plus, Search, Settings, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/client/api";
 import { timeLabel } from "@/lib/client/format";
@@ -176,11 +176,14 @@ function RowItem({ row }: { row: Row }) {
 function SidebarFooter() {
   const { state, setPanel } = useApp();
   const status = state.status;
+  const allLocal = state.bots.length > 0 && state.bots.every((bot) => bot.model.startsWith("local:"));
   const missing = status ? Object.values(status.keys).filter((on) => !on).length : 0;
-  const settingsHint = status?.mock ? "Settings · mock mode until NEBIUS_API_KEY is set" : missing ? `Settings · ${missing} key${missing === 1 ? "" : "s"} not set` : "Settings";
+  const settingsHint = status?.mock ? "Settings · no hosted model key" : missing ? `Settings · ${missing} key${missing === 1 ? "" : "s"} not set` : "Settings";
   return (
     <div className="flex items-center gap-1 border-t border-line px-3 py-3">
-      <a
+      {allLocal ? (
+        <span className="flex h-10 items-center rounded-xl px-3 text-xs font-medium text-ok ring-1 ring-line">Local models</span>
+      ) : <a
         href="https://tokenfactory.nebius.com"
         target="_blank"
         rel="noopener noreferrer"
@@ -189,7 +192,7 @@ function SidebarFooter() {
       >
         <span className="shrink-0 text-[10px] font-semibold tracking-[0.08em] text-faint uppercase">Powered by</span>
         <NebiusLogo height={14} className="shrink-0" />
-      </a>
+      </a>}
       <IconButton label="Connections" onClick={() => setPanel({ kind: "connections" })} className="ml-auto">
         <Plug size={18} />
       </IconButton>
@@ -290,6 +293,11 @@ export function Sidebar() {
         </div>
       )}
 
+      <div className="px-3 pb-3">
+        <button onClick={() => setPanel({ kind: "workforce" })} className="flex w-full items-center gap-3 rounded-xl bg-accent-soft px-3 py-2.5 text-left text-sm font-medium text-[#a4c4ff] hover:bg-accent/20">
+          <Network size={17} /> Workforce
+        </button>
+      </div>
       <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4">
         {!state.loaded && <p className="px-3 py-6 text-sm text-mute">Loading…</p>}
         {rows.map((row) => (

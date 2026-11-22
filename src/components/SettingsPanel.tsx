@@ -42,7 +42,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             name="Nebius Token Factory"
             envVar="NEBIUS_API_KEY"
             ok={Boolean(status?.keys.nebius)}
-            what="The open-source models every bot runs on. Without it, bots use a scripted mock model."
+            what="Required for bots that use hosted Nebius models."
             href="https://tokenfactory.nebius.com"
           />
           <KeyRow name="Tavily" envVar="TAVILY_API_KEY" ok={Boolean(status?.keys.tavily)} what="Web search, page reading and site crawls." href="https://app.tavily.com" />
