@@ -70,3 +70,13 @@ Measure worksheet completions among recipients, parent Q&A attendance among regi
 | Total | 700 | 274 | 155 | 74 | 10.6% | ₹1,080,000 |
 
 Qualification is the largest loss by headcount and proportion, with 426 of 700 leads lost at that stage. Paid search qualifies 20.0% of its leads, compared with 60.0% for counsellor referrals. School workshops generate the most sales and revenue. Test a narrower paid-search landing page against the current page and measure cost per qualified lead. Pilot a structured referral handoff and track qualified leads and sales per active counsellor. The sample lacks spend, dates and attribution detail, which are needed for ROI and causal comparisons. [Fictional CSV](meetuniversity-sales.csv).
+
+## Read-only development review
+
+| Priority | Observed behavior | Proposed change | Acceptance check |
+| --- | --- | --- | --- |
+| P1 | The room queue prevents duplicates awaiting a turn, while a responder that has already run can be re-queued by a later handoff. The depth limit bounds each branch of the handoff. | Record responders that finished for each initiating message. Define when an explicit follow-up can run again. | A circular mention chain does not repeat a completed turn. A genuinely new human message can still reach that bot. |
+| P2 | The room loop reloads its 60-message transcript before every responder, including a second read before the first turn. | Reuse the first transcript when no newer event exists. Fetch incrementally between responders while preserving stop and catch-up behavior. | A turn sees the prior responder's message, a stopped run queues no further turns, and the first turn avoids a duplicate read. |
+| P2 | The upstream package defines `dev`, `build`, `start` and `lint` scripts. Room routing has several independent behaviors that can be exercised without provider credentials. | Add mocked tests for explicit recipients, lead fallback, handoff depth and stopping. | The tests run on a clean checkout with an empty model key, including rooms whose lead was removed. |
+
+This review used the fork's upstream baseline at `4784e3a`. Treat these as proposed changes for a development team. [Room routing](https://github.com/Studio1-OSS/OpenCrewBot/blob/4784e3abd96fc62ac5fd7a08f025102771a5bbaa/src/lib/server/rooms.ts) · [Upstream package scripts](https://github.com/Studio1-OSS/OpenCrewBot/blob/4784e3abd96fc62ac5fd7a08f025102771a5bbaa/package.json).

@@ -90,7 +90,14 @@ export async function extractPublicPage(source: string, parentSignal: AbortSigna
     const unique = [...new Set(lines)];
     if (unique.join(" ").length < 45) throw new InputError("The page contained no readable public text.");
     const excerpt = unique.join("\n").slice(0, 6500);
-    return `### ${title}\nSource: ${url.href}\nRetrieved: ${new Date().toISOString()}\n\n${excerpt}`;
+    const pricing = lines.flatMap((line, index) => {
+      const amount = /(?:₹|\bINR\s*|\bRs\.?\s*)\d[\d,]*/i.test(line) || /^\d{1,3}(?:,\d{3})+(?:\s+onwards)?$/i.test(line);
+      if (!amount || line.length > 170) return [];
+      const context = lines.slice(Math.max(0, index - 3), index + 1).map((part) => part.slice(0, 120));
+      return [context.join(" · ")];
+    });
+    const priceExcerpt = [...new Set(pricing)].slice(0, 12).join("\n").slice(0, 1400);
+    return `### ${title}\nSource: ${url.href}\nRetrieved: ${new Date().toISOString()}\n\n${priceExcerpt ? `Lines near possible published prices:\n${priceExcerpt}\n\n` : ""}${excerpt}`;
   }
   throw new InputError("The source redirected too many times.");
 }

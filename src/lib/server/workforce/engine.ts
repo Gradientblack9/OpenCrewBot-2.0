@@ -298,7 +298,8 @@ async function executeTask(run: WorkRun, task: WorkTask, controller: AbortContro
         await save(current, [audit(current, "tool_finished", `${call.id} (${evidence?.mode})`, result)]);
       });
     }
-    const collectSource = run.input.planner === "rules" && task.kind === "work" && task.tool?.id === "web_extract";
+    const collectSource = run.input.planner === "rules" && task.kind === "work"
+      && task.tool && ["web_extract", "github_read", "deepwiki"].includes(task.tool.id);
     const output = collectSource && evidence ? evidence : await performTask(run, task, bot, evidence, controller.signal);
     await serialized(async () => {
       const current = await getRun(run.id);

@@ -66,6 +66,14 @@ Set `OPENCREWBOT_CHAT_DEFAULT_MODEL=local:qwen3-1.7b` to select it by default fo
 
 On Windows, [start-local-model.ps1](scripts/start-local-model.ps1) starts a workspace copy of llama.cpp with Qwen3 1.7B. Extract the [Windows x64 CPU release](https://github.com/ggml-org/llama.cpp/releases) under `data/local-model/llama` and save Qwen's [Q8_0 GGUF weights](https://huggingface.co/Qwen/Qwen3-1.7B-GGUF) as `data/local-model/qwen3-1.7b-q8_0.gguf`. The script serves `qwen3-1.7b` at `http://127.0.0.1:11435/v1`. Run it from PowerShell whenever the model server needs restarting.
 
+```dotenv
+WORKFORCE_LOCAL_URL=http://127.0.0.1:11435/v1
+WORKFORCE_PLAN_MODEL=local:qwen3-1.7b
+WORKFORCE_MODEL=local:qwen3-1.7b
+OPENCREWBOT_LOCAL_CHAT_MODEL=qwen3-1.7b
+OPENCREWBOT_CHAT_DEFAULT_MODEL=local:qwen3-1.7b
+```
+
 | Surface | Evidence mode |
 | --- | --- |
 | Offline planning, draft text and external tool simulation | **SIMULATED**. Works without API keys or network after installation. |

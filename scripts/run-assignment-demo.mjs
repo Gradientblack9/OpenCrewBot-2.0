@@ -113,7 +113,7 @@ try {
     return room.id;
   };
   const setup = async (maxOutputTokens) => post({ action: "providers", planning: model, defaultModel: model, fallback: "", maxOutputTokens });
-  await setup(1550);
+  await setup(440);
   const permitted = new Set(["web_extract", "github_read", "deepwiki", "learn_docs", "csv"]);
   for (const bot of roster.bots) {
     await post({
@@ -144,15 +144,16 @@ try {
   }
 
   await scenario("market", async () => {
-    const { id } = await launch("Market Intelligence", "meetuniversity-market", `Research MeetUniversity's Indian student-advisory competitors using these first-party pages: ${marketSources.join(" ")}. Compare at least three actual competitors in a Markdown table with offering, disclosed pricing, target customer, positioning and source. Label price unknown when absent. Propose three practical positioning opportunities for MeetUniversity as hypotheses. Keep it under 550 words.`);
+    const { id } = await launch("Market Intelligence", "meetuniversity-market", `Research MeetUniversity's Indian student-advisory competitors using these first-party pages: ${marketSources.join(" ")}. Compare the three competitors in a compact Markdown table with offering, advertised plan prices, customer, positioning and source. Use unknown when the exact price cannot be verified. Keep scholarships out of the price column. Propose three positioning opportunities for MeetUniversity as hypotheses. Keep it under 240 words.`);
     const tasks = await finish("market", id);
     liveWorker(tasks);
     assert.equal(tasks.filter((task) => task.tool?.id === "web_extract" && task.toolOutput?.mode === "LIVE").length, 3);
     return { id, liveSources: 3 };
   });
 
+  if (!only.size || only.has("campaign")) await setup(1250);
   await scenario("campaign", async () => {
-    const { id } = await launch("Studio", "class-11-campaign", "Develop MeetUniversity Aspirations' Class 11 campaign for Indian students and their parents. Source audience needs using https://cbseacademic.nic.in/skill-education-curriculum.html and https://asercentre.org/aser-2023-beyond-basics/. Give two positioning strategies and two concepts. Include a Markdown content calendar with one short row per day (days 1 through 30), channel, theme and CTA. Provide draft Instagram carousel wording and a draft parent email. Keep calendar rows short and cite the supplied audience sources without inventing statistics.");
+    const { id } = await launch("Studio", "class-11-campaign", "Develop MeetUniversity Aspirations' Class 11 campaign for Indian students and parents. Use https://www.unicef.org/india/government-partners-yuwaah and https://asercentre.org/aser-2023-beyond-basics/ for audience context. Give two strategies and two concepts. Include a Markdown calendar with 30 short rows, each with its own day number, channel, theme and CTA. End with short draft carousel and parent email. Cite both sources. Keep each calendar row under ten words.");
     const tasks = await finish("campaign", id);
     liveWorker(tasks);
     const campaign = tasks.find((task) => task.kind === "work" && task.output?.usage)?.output.markdown;
@@ -160,7 +161,7 @@ try {
     return { id, includesDay30: true };
   });
 
-  await setup(550);
+  await setup(400);
 
   await scenario("sales", async () => {
     const csv = { name: "meetuniversity-sales.csv", text: readFileSync(join(root, "examples", "meetuniversity-sales.csv"), "utf8") };
